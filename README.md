@@ -419,7 +419,12 @@ The core idea is:
 
 Don't just explain the error. Guide the developer from failure to verified fix.
 ---
+## 🚀 Live Demo
 
+👉 **[Open DebugFlow](https://debug-flow-pi.vercel.app/)**
+
+**Backend API:** [https://debugflow-api.onrender.com](https://debugflow-api.onrender.com)
+--- 
 ## License
 
 This project was created as a hackathon prototype.
