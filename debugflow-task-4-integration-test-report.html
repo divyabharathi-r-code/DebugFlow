@@ -1,0 +1,485 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DebugFlow — Task 4 Integration &amp; Test Report</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f7f8fa;
+    --border: #e5e7eb;
+    --text: #1f2328;
+    --muted: #57606a;
+    --accent: #3b82d4;
+    --green: #1a7f37;
+    --green-bg: #dafbe1;
+    --red: #cf222e;
+    --red-bg: #ffebe9;
+    --yellow: #9a6700;
+    --yellow-bg: #fff8c5;
+    --purple: #7c5cd8;
+    --purple-bg: #f0ebff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+  }
+  .page { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+  h2 { font-size: 1.05rem; font-weight: 700; margin: 2rem 0 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+  h3 { font-size: 0.9rem; font-weight: 600; margin: 1.2rem 0 0.4rem; }
+  p  { margin-bottom: 0.6rem; color: var(--text); }
+  .subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+  .meta { display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1.75rem; font-size: 0.8rem; color: var(--muted); }
+  .meta strong { color: var(--text); }
+
+  /* Status badge */
+  .badge { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+  .badge-pass  { background: var(--green-bg);  color: var(--green); }
+  .badge-fail  { background: var(--red-bg);    color: var(--red); }
+  .badge-warn  { background: var(--yellow-bg); color: var(--yellow); }
+  .badge-info  { background: var(--purple-bg); color: var(--purple); }
+  .badge-note  { background: var(--surface);   color: var(--muted); border: 1px solid var(--border); }
+
+  /* Summary bar */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; }
+  .summary-card .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.2rem; }
+  .summary-card .value { font-size: 1.15rem; font-weight: 700; }
+  .summary-card .value.green { color: var(--green); }
+  .summary-card .value.red   { color: var(--red); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 1rem; }
+  th { background: var(--surface); text-align: left; font-weight: 600; padding: 0.4rem 0.6rem; border: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  td { padding: 0.4rem 0.6rem; border: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--surface); }
+
+  /* Code */
+  code { font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace; font-size: 0.8rem; background: var(--surface); padding: 0.1rem 0.35rem; border-radius: 3px; border: 1px solid var(--border); }
+  pre { font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace; font-size: 0.78rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; overflow-x: auto; margin-bottom: 0.75rem; line-height: 1.5; }
+
+  /* Section box */
+  .box { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem 1rem; margin-bottom: 1rem; }
+  .box p:last-child { margin-bottom: 0; }
+
+  /* Check list */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 0.25rem 0; display: flex; align-items: baseline; gap: 0.5rem; font-size: 0.85rem; }
+  .checklist li .icon { font-size: 0.8rem; flex-shrink: 0; }
+  .ok   { color: var(--green); }
+  .warn { color: var(--yellow); }
+  .fail { color: var(--red); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.75rem 0; }
+
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; font-size: 0.72rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>DebugFlow — Task 4 Integration &amp; Test Report</h1>
+  <p class="subtitle">End-to-end verification of the FastAPI backend + React/Vite frontend integration</p>
+
+  <div class="meta">
+    <span><strong>Date</strong>  Task 4 completion</span>
+    <span><strong>Backend</strong>  FastAPI 0.141 · Python 3.14 · uvicorn</span>
+    <span><strong>Frontend</strong>  React 18 · Vite 5.4</span>
+    <span><strong>Platform</strong>  Windows 10 x64</span>
+  </div>
+
+  
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="label">Backend Tests</div>
+      <div class="value green">55 / 55</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Frontend Build</div>
+      <div class="value green">✓ Clean</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Endpoints Verified</div>
+      <div class="value green">4 / 4</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Demo Bugs Verified</div>
+      <div class="value green">3 / 3</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Error Probes</div>
+      <div class="value green">6 / 6</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Security Checks</div>
+      <div class="value green">7 / 7</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Files Modified</div>
+      <div class="value">3</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Regressions</div>
+      <div class="value green">0</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  
+  <h2>1 · Files Modified</h2>
+  <table>
+    <thead><tr><th>File</th><th>Change</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>frontend/src/App.jsx</code></td>
+        <td>Added <code>resetWorkflow()</code>, <code>handleSetCode()</code>, <code>handleSetError()</code> wrappers; wired them to <code>CodeInput</code> and <code>ErrorInput</code></td>
+        <td>Old analysis/fix/test results persisted on screen when a new demo error or code was loaded, breaking the workflow reset requirement</td>
+      </tr>
+      <tr>
+        <td><code>frontend/src/services/demo.js</code></td>
+        <td>Removed <code>import sys, os</code> and <code>sys.path.insert(0, os.path.dirname(__file__))</code> from <code>DEMO_TEST_CODE</code></td>
+        <td>Lines were misleading — the functions are self-contained in the test string; <code>__file__</code> in a temp file does not point to the demo directory</td>
+      </tr>
+      <tr>
+        <td><code>frontend/src/components/WorkflowStatus.jsx</code></td>
+        <td>Added <code>STAGE_LABEL_OVERRIDE</code> map; step 3 now shows "Generating Fix…" during <code>fixing</code> and "Fix Ready" when <code>fixed</code></td>
+        <td>Both <code>fixing</code> and <code>fixed</code> app stages mapped to the same step index, making it impossible to distinguish them from the progress bar</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.82rem;color:var(--muted)">No backend files were modified. All 55 existing backend tests were preserved.</p>
+
+  <hr class="divider" />
+
+  
+  <h2>2 · Integration Issues Discovered</h2>
+  <table>
+    <thead><tr><th>#</th><th>Issue</th><th>Severity</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Workflow state not reset when demo error/code buttons clicked — stale analysis panels from the previous bug remained visible</td>
+        <td><span class="badge badge-fail">High</span></td>
+        <td><span class="badge badge-pass">Fixed</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><code>DEMO_TEST_CODE</code> in <code>demo.js</code> imported <code>sys</code>/<code>os</code> and called <code>sys.path.insert(0, os.path.dirname(__file__))</code> — useless in a temp file, misleading to readers</td>
+        <td><span class="badge badge-warn">Low</span></td>
+        <td><span class="badge badge-pass">Fixed</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><code>WorkflowStatus</code> step 3 label was identical whether fix was in-progress or complete — no visual distinction</td>
+        <td><span class="badge badge-warn">Low</span></td>
+        <td><span class="badge badge-pass">Fixed</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>API schema mismatch between frontend and backend — <strong>none found</strong>. All field names, types and endpoint paths are fully aligned.</td>
+        <td><span class="badge badge-pass">None</span></td>
+        <td><span class="badge badge-note">N/A</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  
+  <h2>3 · Manual Endpoint Test Results</h2>
+
+  <h3>GET /health</h3>
+  <table>
+    <thead><tr><th>Expected</th><th>Actual</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><code>{"status": "ok"}</code></td><td><code>{"status": "ok"}</code></td><td><span class="badge badge-pass">PASS</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>POST /analyze — all three demo bugs</h3>
+  <table>
+    <thead><tr><th>Bug</th><th>error_type</th><th>affected_function</th><th>affected_line</th><th>confidence</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>ZeroDivisionError</td>
+        <td><code>ZeroDivisionError</code></td>
+        <td><code>calculate_average</code></td>
+        <td>4</td>
+        <td>0.98</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>NameError</td>
+        <td><code>NameError</code></td>
+        <td><code>get_item</code></td>
+        <td>8</td>
+        <td>0.95</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>IndexError</td>
+        <td><code>IndexError</code></td>
+        <td><code>first_element</code></td>
+        <td>11</td>
+        <td>0.96</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.82rem;color:var(--muted)">All 7 required fields returned in every response: <code>error_type</code>, <code>error_message</code>, <code>affected_function</code>, <code>affected_line</code>, <code>root_cause</code>, <code>explanation</code>, <code>confidence</code>.</p>
+
+  <h3>POST /fix — all three demo bugs</h3>
+  <table>
+    <thead><tr><th>Bug</th><th>fix_available</th><th>diff present</th><th>original_code unchanged</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>ZeroDivisionError</td>
+        <td><span class="ok">✓ True</span></td>
+        <td><span class="ok">✓</span></td>
+        <td><span class="ok">✓ True</span></td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>NameError</td>
+        <td><span class="ok">✓ True</span></td>
+        <td><span class="ok">✓</span></td>
+        <td><span class="ok">✓ True</span></td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>IndexError</td>
+        <td><span class="ok">✓ True</span></td>
+        <td><span class="ok">✓</span></td>
+        <td><span class="ok">✓ True</span></td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.82rem;color:var(--muted)">Fix strategies: ZeroDivisionError → <code>if divisor != 0:</code> guard · NameError → <code>reslt = None  # TODO</code> stub insertion · IndexError → bounds-check guard. None auto-applied to source.</p>
+
+  <h3>POST /run-tests — self-contained demo suite</h3>
+  <table>
+    <thead><tr><th>tests_total</th><th>tests_passed</th><th>tests_failed</th><th>passed</th><th>returncode</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>5</td><td>5</td><td>0</td>
+        <td><span class="ok">True</span></td>
+        <td>0</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  
+  <h2>4 · End-to-End Demo Bug Workflows</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>ZeroDivisionError</th>
+        <th>NameError</th>
+        <th>IndexError</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Load Demo code</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Load demo traceback</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Workflow resets on new demo load</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Analyze Bug → POST /analyze</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Root cause displayed (all 7 fields)</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Generate Fix → POST /fix</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Diff / Original / Fixed tabs shown</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Source NOT auto-modified</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Apply Fix (explicit user action)</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Run Tests → POST /run-tests</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>PASS/FAIL, counts, returncode, summary displayed</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>Workflow progress indicator updates</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+      <tr><td>UI does not crash</td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td><td><span class="badge badge-pass">✓</span></td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  
+  <h2>5 · Error Handling Tests</h2>
+  <table>
+    <thead><tr><th>Scenario</th><th>Where handled</th><th>Behaviour</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Empty code submitted</td>
+        <td>Frontend — <code>App.jsx</code> pre-flight guard</td>
+        <td>Error banner shown; API never called</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>Empty traceback submitted</td>
+        <td>Frontend — <code>App.jsx</code> pre-flight guard</td>
+        <td>Error banner shown; API never called</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>Empty code sent to backend directly</td>
+        <td>Backend — <code>analyze</code> router</td>
+        <td>200 OK, <code>error_type</code> extracted from traceback; <code>confidence</code> 0.95</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>Invalid Python (syntax error)</td>
+        <td>Backend — <code>ast_analyzer</code></td>
+        <td>200 OK; <code>ast.syntax_error</code> populated; analysis continues from traceback</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>Garbage / invalid traceback</td>
+        <td>Backend — <code>traceback_parser</code> fallback</td>
+        <td>200 OK; <code>error_type: UnknownError</code>, <code>confidence: 0.3</code></td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>Failing test via /run-tests</td>
+        <td>Backend — <code>sandbox_runner</code></td>
+        <td><code>passed: false</code>, <code>returncode: 1</code>, <code>tests_failed: 1</code>, summary "FAIL"</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+      <tr>
+        <td>Backend unavailable</td>
+        <td>Frontend — <code>checkHealth()</code> on mount + <code>App.jsx</code> pre-flight</td>
+        <td>Offline warning banner shown; "Analyze Bug" button blocked; friendly error message on any API failure</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  
+  <h2>6 · Security Checks</h2>
+  <ul class="checklist">
+    <li><span class="icon ok">✓</span> <code>shell=False</code> set explicitly on line 126 of <code>engine/sandbox_runner.py</code> — shell injection impossible</li>
+    <li><span class="icon ok">✓</span> No <code>eval()</code> or <code>exec()</code> of user input anywhere in project source (<code>engine/</code>, <code>routers/</code>, <code>main.py</code>)</li>
+    <li><span class="icon ok">✓</span> No <code>os.system()</code> or <code>subprocess.call()</code> in project source</li>
+    <li><span class="icon ok">✓</span> Frontend accepts no arbitrary commands — only code strings and traceback strings passed to defined endpoints</li>
+    <li><span class="icon ok">✓</span> Fix is never silently applied — returned as data only; user must click "Apply Fix to Editor" explicitly</li>
+    <li><span class="icon ok">✓</span> Test code written to <code>tempfile.NamedTemporaryFile</code> only; temp file deleted in <code>finally</code> block (<code>sandbox_runner.py</code> lines 181–198)</li>
+    <li><span class="icon ok">✓</span> No API keys, secrets, or tokens in any frontend or backend project source file</li>
+  </ul>
+
+  <hr class="divider" />
+
+  
+  <h2>7 · Backend Test Suite Results</h2>
+  <div class="box">
+    <p><strong>Run 1</strong> (initial, during Task 4 integration) — <span class="ok">55 passed, 0 failed</span> in 14.97 s</p>
+    <p><strong>Run 2</strong> (after all fixes, confirming no regression) — <span class="ok">55 passed, 0 failed</span> in 15.09 s</p>
+    <p style="margin-top:0.5rem;color:var(--muted);font-size:0.82rem">1 warning: <code>StarletteDeprecationWarning</code> from <code>fastapi/testclient.py</code> — third-party library, does not affect functionality.</p>
+  </div>
+  <table>
+    <thead><tr><th>Test class</th><th>Tests</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>TestTracebackParser</td><td>9</td><td><span class="badge badge-pass">All pass</span></td></tr>
+      <tr><td>TestAstAnalyzer</td><td>12</td><td><span class="badge badge-pass">All pass</span></td></tr>
+      <tr><td>TestRootCause</td><td>8</td><td><span class="badge badge-pass">All pass</span></td></tr>
+      <tr><td>TestFixGenerator</td><td>8</td><td><span class="badge badge-pass">All pass</span></td></tr>
+      <tr><td>TestSandboxRunner</td><td>10</td><td><span class="badge badge-pass">All pass</span></td></tr>
+      <tr><td>test_main (integration)</td><td>8</td><td><span class="badge badge-pass">All pass</span></td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  
+  <h2>8 · Frontend Build Results</h2>
+  <div class="box">
+    <p><strong>Run 1</strong> (initial) — <span class="ok">✓ built in 1.29 s</span> · 40 modules · <code>index.js</code> 160.30 kB (gzip 50.91 kB)</p>
+    <p><strong>Run 2</strong> (after all fixes) — <span class="ok">✓ built in 1.56 s</span> · 40 modules · same output sizes</p>
+    <p style="margin-top:0.5rem;color:var(--muted);font-size:0.82rem">Stderr: Vite CJS Node API deprecation notice (third-party, non-fatal, no action required).</p>
+  </div>
+  <pre>dist/index.html                  0.39 kB │ gzip:  0.27 kB
+dist/assets/index-BlHAnjCK.css   9.85 kB │ gzip:  2.47 kB
+dist/assets/index-BHoJP0o4.js  160.30 kB │ gzip: 50.91 kB</pre>
+
+  <hr class="divider" />
+
+  
+  <h2>9 · Remaining Limitations</h2>
+  <table>
+    <thead><tr><th>Limitation</th><th>Impact</th><th>Recommendation</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Fix strategies only cover 5 error types (NameError, IndexError, TypeError, ZeroDivisionError, ValueError)</td>
+        <td>Low — demo bugs all covered; other types return <code>fix_available: false</code> with explanation</td>
+        <td>Extend <code>_FIXERS</code> table in <code>fix_generator.py</code> as needed</td>
+      </tr>
+      <tr>
+        <td>No sandbox isolation beyond timeout — test code runs with full filesystem access under the current user</td>
+        <td>Medium — acceptable for a local dev tool; not suitable for multi-user deployment</td>
+        <td>Replace <code>subprocess</code> runner with a container-based sandbox for production</td>
+      </tr>
+      <tr>
+        <td>CORS restricted to <code>localhost:5173</code> and <code>localhost:3000</code> only</td>
+        <td>Minimal — correct for local dev; update <code>allow_origins</code> in <code>main.py</code> before any hosted deployment</td>
+        <td>Set via environment variable for non-local deployments</td>
+      </tr>
+      <tr>
+        <td>No persistent state — refreshing the browser clears all analysis/fix/test results</td>
+        <td>Low — MVP scope; expected behaviour</td>
+        <td>Add <code>localStorage</code> or a session endpoint if persistence is required</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  
+  <h2>10 · Commands to Run DebugFlow Locally</h2>
+  <h3>Prerequisites</h3>
+  <ul style="font-size:0.85rem;padding-left:1.2rem;margin-bottom:0.75rem">
+    <li>Python 3.11+ with the <code>backend/.venv</code> virtual environment already created</li>
+    <li>Node.js 18+ on PATH (installed at <code>C:\Program Files\nodejs</code> on this machine)</li>
+  </ul>
+
+  <h3>Terminal 1 — FastAPI backend (port 8000)</h3>
+  <pre>cd backend
+.\.venv\Scripts\python.exe -m uvicorn main:app --reload --port 8000</pre>
+
+  <h3>Terminal 2 — React/Vite frontend (port 5173)</h3>
+  <pre># Windows — add Node to PATH first if not already on it
+$env:PATH = "C:\Program Files\nodejs;" + $env:PATH
+cd frontend
+node_modules\.bin\vite.cmd           # dev server
+
+# Or for a production preview:
+node_modules\.bin\vite.cmd build
+node_modules\.bin\vite.cmd preview</pre>
+
+  <h3>Run backend tests only</h3>
+  <pre>cd backend
+.\.venv\Scripts\python.exe -m pytest tests/ -v</pre>
+
+  <h3>Open the app</h3>
+  <pre>http://localhost:5173</pre>
+
+  <h3>Workflow</h3>
+  <ol style="font-size:0.85rem;padding-left:1.2rem;line-height:1.9">
+    <li>Click <strong>Load Demo</strong> in the Python Source Code panel</li>
+    <li>Click a demo error button (ZeroDivision / NameError / IndexError) in the Traceback panel</li>
+    <li>Click <strong>Analyze Bug</strong> → Root Cause Analysis panel appears</li>
+    <li>Click <strong>Generate Fix →</strong> → Proposed Fix panel appears with Unified Diff / Original / Fixed tabs</li>
+    <li>Click <strong>Apply Fix to Editor</strong> to copy fixed code into the editor (explicit action)</li>
+    <li>Click <strong>Load Demo Tests</strong> in the Test Runner panel</li>
+    <li>Click <strong>Run Tests</strong> → PASS/FAIL result with counts and output</li>
+  </ol>
+
+  <footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>
