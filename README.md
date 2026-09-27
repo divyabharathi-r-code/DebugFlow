@@ -188,8 +188,10 @@ The React interface presents debugging as a progressive workflow instead of a co
 ---
 
 ## Project Structure
+## Project Structure
+
+```text
 DebugFlow/
-│
 ├── backend/
 │   ├── engine/
 │   │   ├── ast_analyzer.py
@@ -240,6 +242,7 @@ DebugFlow/
 ├── .env.example
 ├── .gitignore
 └── README.md
+```
 ## Getting Started
 ### Prerequisites
 
