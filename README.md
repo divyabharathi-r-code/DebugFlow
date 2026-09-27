@@ -112,19 +112,19 @@ Uses Python's built-in ast module to inspect:
 
 ## Root Cause Detection
 
-Uses structured error-pattern analysis to identify likely causes and provide a confidence score.
+- Uses structured error-pattern analysis to identify likely causes and provide a confidence score.
 ---
 
 ## Candidate Fix Generation
 
 Generates fixes for supported error patterns and presents them as a unified diff.
 
-The original source is not automatically modified.
+- The original source is not automatically modified.
 ---
 
 ## Human Approval Gate
 
-A proposed fix must be explicitly approved before it is applied.
+ - A proposed fix must be explicitly approved before it is applied.
 ---
 ## Automated Test Execution
 
@@ -138,7 +138,7 @@ Runs the project's tests and reports:
 ---
 ## Guided Developer Interface
 
-The React interface presents debugging as a progressive workflow instead of a collection of disconnected tools.
+- The React interface presents debugging as a progressive workflow instead of a collection of disconnected tools.
 ---
 ## Architecture
                 ┌───────────────────────┐
